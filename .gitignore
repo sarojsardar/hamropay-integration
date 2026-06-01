@@ -1,0 +1,18 @@
+# Next.js
+hamropay-nextjs/.next/
+hamropay-nextjs/node_modules/
+hamropay-nextjs/.env.local
+hamropay-nextjs/.env*.local
+
+# Laravel
+hamropay-laravel/vendor/
+hamropay-laravel/.env
+hamropay-laravel/storage/logs/*.log
+hamropay-laravel/storage/framework/views/
+hamropay-laravel/storage/framework/cache/
+hamropay-laravel/storage/framework/sessions/
+hamropay-laravel/bootstrap/cache/*.php
+
+# General
+.DS_Store
+*.pem
