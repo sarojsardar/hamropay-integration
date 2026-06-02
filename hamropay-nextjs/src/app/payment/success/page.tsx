@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation';
 
 async function getTransaction(merchantTxnId: string) {
-  const res = await fetch(`${process.env.API_URL}/api/hamropay/transaction`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hamropay/transaction`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ merchant_txn_id: merchantTxnId }),

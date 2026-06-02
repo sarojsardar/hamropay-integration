@@ -1,47 +1,40 @@
+import { createHmac } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 
-async function getAccessToken(): Promise<string> {
-  const res = await fetch(`${process.env.HAMROPAY_BASE_URL}/api/v1/auth/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      clientId: process.env.HAMROPAY_CLIENT_ID,
-      clientApiKey: process.env.HAMROPAY_CLIENT_API_KEY,
-      clientSecret: process.env.HAMROPAY_CLIENT_SECRET,
-    }),
-  });
-
-  if (!res.ok) throw new Error(`Auth failed: ${res.status}`);
-  const data = await res.json();
-  return data.accessToken ?? data.access_token ?? data.token;
+function sign(message: string): string {
+  return Buffer.from(
+    createHmac('sha512', process.env.HAMROPAY_CLIENT_SECRET!).update(message).digest()
+  ).toString('base64');
 }
 
 export async function POST(req: NextRequest) {
   try {
     const { merchant_txn_id } = await req.json();
 
-    const token = await getAccessToken();
+    const merchantId   = process.env.HAMROPAY_MERCHANT_ID!;
+    const clientId     = process.env.HAMROPAY_CLIENT_ID!;
+    const clientApiKey = process.env.HAMROPAY_CLIENT_API_KEY!;
 
-    const res = await fetch(`${process.env.HAMROPAY_BASE_URL}/api/v1/payment/transaction`, {
+    const signature = sign([merchant_txn_id, merchantId, clientId, clientApiKey].join(','));
+
+    const res = await fetch(`${process.env.HAMROPAY_BASE_URL}/v1/checkout/transaction`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        'Content-Type':   'application/json',
+        'Client-Id':      clientId,
+        'Client-API-Key': clientApiKey,
+        'Signature':      signature,
       },
-      body: JSON.stringify({
-        merchantId: process.env.HAMROPAY_MERCHANT_ID,
-        merchantTxnId: merchant_txn_id,
-      }),
+      body: JSON.stringify({ merchantId, merchantTxnId: merchant_txn_id }),
       cache: 'no-store',
     });
 
-    if (!res.ok) {
-      const err = await res.text();
-      return NextResponse.json({ error: err }, { status: res.status });
-    }
+    const raw = await res.text();
+    console.log('[HamroPay transaction] status:', res.status, 'body:', raw);
 
-    const data = await res.json();
-    return NextResponse.json(data);
+    if (!res.ok) return NextResponse.json({ error: raw }, { status: res.status });
+
+    return NextResponse.json(JSON.parse(raw));
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : 'Failed to fetch transaction';
     return NextResponse.json({ error: message }, { status: 500 });
