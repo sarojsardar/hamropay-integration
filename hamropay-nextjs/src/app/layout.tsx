@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "HamroPay",
-  description: "HamroPay Next.js App",
+  title: 'HamroPay',
+  description: 'HamroPay Payment Gateway Integration',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
