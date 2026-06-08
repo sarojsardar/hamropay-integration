@@ -6,7 +6,7 @@ export async function initiateCheckout(payload: {
   products?: { name: string; imageUrl: string; description: string; price: number; quantity: number }[];
   metadata?: Record<string, string>;
 }) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hamropay/initiate`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/hamropay/initiate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),

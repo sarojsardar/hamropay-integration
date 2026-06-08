@@ -6,7 +6,7 @@ use App\Services\HamroPayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class HamroPayController extends Controller
+class HamroPayController
 {
     public function __construct(private HamroPayService $hamroPay) {}
 
